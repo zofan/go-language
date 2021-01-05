@@ -8,3 +8,23 @@ type Language struct {
 
 	Users []string
 }
+
+func ByAlpha3(v string) *Language {
+	for _, c := range List {
+		if c.Alpha3 == v {
+			return &c
+		}
+	}
+
+	return nil
+}
+
+func ByAlpha2(v string) *Language {
+	for _, c := range List {
+		if c.Alpha2 == v {
+			return &c
+		}
+	}
+
+	return nil
+}
