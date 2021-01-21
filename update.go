@@ -5,6 +5,8 @@ import (
 	"github.com/zofan/go-country"
 	"github.com/zofan/go-fwrite"
 	"github.com/zofan/go-req"
+	"github.com/zofan/go-xmlre"
+	"html"
 	"path/filepath"
 	"regexp"
 	"runtime"
@@ -24,9 +26,9 @@ func Update() error {
 	}
 
 	body := string(resp.ReadAll())
-	body = strings.ReplaceAll(body, `&nbsp;`, ` `)
+	body = html.UnescapeString(body)
 
-	rowRe := regexp.MustCompile(`(?s)<td scope="row">(\w+)</td>\s*<td>(\w+)</td>\s*<td>(\w+)</td>`)
+	rowRe := xmlre.Compile(`<td scope="row">(\w+)</td><td>(\w+)</td><td>(\w+)</td>`)
 
 	for _, row := range rowRe.FindAllStringSubmatch(body, -1) {
 		l := &Language{
@@ -50,6 +52,8 @@ func Update() error {
 
 	// ---
 
+	updateTags(list)
+
 	var tpl []string
 
 	tpl = append(tpl, `package language`)
@@ -63,6 +67,8 @@ func Update() error {
 		tpl = append(tpl, `		Alpha2:    "`+l.Alpha2+`",`)
 		tpl = append(tpl, `		Name:      "`+l.Name+`",`)
 		tpl = append(tpl, `		Users:     `+fmt.Sprintf(`%#v`, l.Users)+`,`)
+		tpl = append(tpl, `		AltNames:  `+fmt.Sprintf(`%#v`, l.AltNames)+`,`)
+		tpl = append(tpl, `		Tags:      `+fmt.Sprintf(`%#v`, l.Tags)+`,`)
 		tpl = append(tpl, `	},`)
 	}
 
@@ -73,4 +79,26 @@ func Update() error {
 	dir := filepath.Dir(file)
 
 	return fwrite.WriteRaw(dir+`/language_db.go`, []byte(strings.Join(tpl, "\n")))
+}
+
+func updateTags(list map[string]*Language) {
+	wordSplitRe := regexp.MustCompile(`[^\p{L}\p{N}]+`)
+	wordMap := map[string][]*Language{}
+
+	for _, c := range list {
+		name := strings.ToLower(c.Name + ` ` + strings.Join(c.AltNames, ` `))
+		words := wordSplitRe.Split(name, -1)
+		for _, w := range words {
+			if len(w) > 0 {
+				wordMap[w] = append(wordMap[w], c)
+			}
+		}
+		c.Tags = []string{}
+	}
+
+	for w, cs := range wordMap {
+		if len(cs) == 1 {
+			cs[0].Tags = append(cs[0].Tags, w)
+		}
+	}
 }

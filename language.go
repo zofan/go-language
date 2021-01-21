@@ -1,17 +1,21 @@
 package language
 
+import "strings"
+
 type Language struct {
 	Alpha2 string
 	Alpha3 string
 
-	Name string
+	Name     string
+	AltNames []string
+	Tags     []string
 
 	Users []string
 }
 
-func ByAlpha3(v string) *Language {
+func Get(v string) *Language {
 	for _, c := range List {
-		if c.Alpha3 == v {
+		if c.Alpha3 == v || c.Alpha2 == v {
 			return &c
 		}
 	}
@@ -19,10 +23,24 @@ func ByAlpha3(v string) *Language {
 	return nil
 }
 
-func ByAlpha2(v string) *Language {
+func ByName(v string) *Language {
+	v = strings.ToLower(v)
+
 	for _, c := range List {
-		if c.Alpha2 == v {
+		if strings.ToLower(c.Name) == v {
 			return &c
+		}
+
+		for _, n := range c.AltNames {
+			if strings.ToLower(n) == v {
+				return &c
+			}
+		}
+
+		for _, n := range c.Tags {
+			if strings.ToLower(n) == v {
+				return &c
+			}
 		}
 	}
 
