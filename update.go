@@ -85,20 +85,20 @@ func updateTags(list map[string]*Language) {
 	wordSplitRe := regexp.MustCompile(`[^\p{L}\p{N}]+`)
 	wordMap := map[string][]*Language{}
 
-	for _, c := range list {
-		name := strings.ToLower(c.Name + ` ` + strings.Join(c.AltNames, ` `))
+	for _, l := range list {
+		name := strings.ToLower(l.Name + ` ` + strings.Join(l.AltNames, ` `))
 		words := wordSplitRe.Split(name, -1)
 		for _, w := range words {
 			if len(w) > 0 {
-				wordMap[w] = append(wordMap[w], c)
+				wordMap[w] = append(wordMap[w], l)
 			}
 		}
-		c.Tags = []string{}
+		l.Tags = []string{}
 	}
 
-	for w, cs := range wordMap {
-		if len(cs) == 1 {
-			cs[0].Tags = append(cs[0].Tags, w)
+	for w, ls := range wordMap {
+		if len(ls) == 1 {
+			ls[0].Tags = append(ls[0].Tags, w)
 		}
 	}
 }

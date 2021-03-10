@@ -14,9 +14,9 @@ type Language struct {
 }
 
 func Get(v string) *Language {
-	for _, c := range List {
-		if c.Alpha3 == v || c.Alpha2 == v {
-			return &c
+	for _, l := range List {
+		if l.Alpha3 == v || l.Alpha2 == v {
+			return &l
 		}
 	}
 
@@ -26,20 +26,20 @@ func Get(v string) *Language {
 func ByName(v string) *Language {
 	v = strings.ToLower(v)
 
-	for _, c := range List {
-		if strings.ToLower(c.Name) == v {
-			return &c
+	for _, l := range List {
+		if strings.ToLower(l.Name) == v {
+			return &l
 		}
 
-		for _, n := range c.AltNames {
+		for _, n := range l.AltNames {
 			if strings.ToLower(n) == v {
-				return &c
+				return &l
 			}
 		}
 
-		for _, n := range c.Tags {
+		for _, n := range l.Tags {
 			if strings.ToLower(n) == v {
-				return &c
+				return &l
 			}
 		}
 	}
